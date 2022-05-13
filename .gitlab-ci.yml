@@ -1,0 +1,195 @@
+stages:
+  - build_app_dev
+  - build_image_dev
+  - deploy_dev
+  - build_app_prod
+  - build_image_prod
+  - deploy_prod
+
+variables:
+  # aws,general
+  CLUSTER_TYPE: general 
+  DEPLOYMENT_TYPE: 'deployment' 
+  # Standard stateless deployment. Rolling update only without persistent volume or with shared-filesystem persistent volume.
+  #DEPLOYMENT_TYPE: 'statefulset' # For rolling update use at least 2 replicas! 
+  REPLICAS: 5
+  APP_HOSTNAME_DEV: 'trcp-dev.it1.ge'
+  APP_HOSTNAME_PROD: 'trcp.it1.ge'
+  APP_ROOT: ''
+  USE_PERSISTENT_VOLUME: 'false'
+  STORAGE_CLASS: 'shared-filesystem'
+  #STORAGE_CLASS: 'block-storage'
+  MOUNTPOINT: '/data'
+  VOLUME_SIZE_GB: 5
+  REQUEST_CPU_ML: 50
+  REQUEST_MEM_MB: 128
+  REQUEST_EPHEMER_STOR_GB: 1
+  LIMIT_CPU_ML: 1000
+  LIMIT_MEM_MB: 2096
+  LIMIT_EPHEMER_STOR_GB: 2
+  USE_AUTOSCALING: 'false'
+  MIN_REPLICAS: 5
+  MAX_REPLICAS: 10
+  APP_TARGET_PORT: 80
+  LIVENESS_PROBE: 'false'
+  #LIVENESS_PROBE_TYPE: 'tcp'
+  #LIVENESS_PROBE_PORT: $APP_TARGET_PORT
+  #LIVENESS_PROBE_TYPE: 'exec_command'
+  #LIVENESS_PROBE_COMMAND: '/bin/true'
+  LIVENESS_PROBE_TYPE: 'http'
+  LIVENESS_PROBE_PORT: $APP_TARGET_PORT
+  LIVENESS_PROBE_PATH: '/'
+  LIVENESS_PROBE_SCHEME: 'HTTP'
+  LIVENESS_FAILURE_THRESHOLD: 3
+  LIVENESS_DELAY_SECONDS: 5
+  LIVENESS_PERIOD_SECONDS: 2
+  LIVENESS_SUCCESS_THRESHOLD: 1
+  LIVENESS_TIMEOUT_SECONDS: 2
+  #CUSTOM_METRICS_ENDPOINT: '/actuator/prometheus'
+  #CUSTOM_METRICS_PORT: $APP_TARGET_PORT
+  #CUSTOM_METRICS_SCHEMA: 'HTTP'
+  DOMAIN: it1.ge
+  REGISTRY: registry.it1.ge/registry
+  CHAT_WEBHOOK_URL: hook
+
+include:
+  - project: configs/kube-templates
+    ref: master
+    file:
+      - /ci-includes/lowercase_project_name.yml
+      - /ci-includes/sonar_analyze.yml
+      - /ci-includes/build_and_push_docker_image.yml
+      - /ci-includes/deploy_to_kubernetes.yml
+      - /ci-includes/remove_deployment_from_kubernetes.yml
+
+build_app_dev:
+  image: composer
+  stage: build_app_dev
+  variables: 
+    APP_HOSTNAME: $APP_HOSTNAME_PROD
+  script:
+      - apk add --update nodejs npm
+      - npm install
+      - npm run prod
+      #- composer update --with-all-dependencies
+      - composer update --ignore-platform-reqs
+      - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts --ignore-platform-reqs
+      - echo "DB_CONNECTION=mysql" >> .env.example
+      - echo "DB_HOST=$DB_HOST_DEV" >> .env.example
+      - echo "DB_PORT=3306" >> .env.example
+      - echo "DB_DATABASE=$DB_NAME_DEV" >> .env.example
+      - echo "DB_USERNAME=$DB_USER_DEV" >> .env.example
+      - echo "DB_PASSWORD=$DB_PASS_DEV" >> .env.example
+      - echo "APP_DEBUG=true" >> .env.example
+      - cp .env.example .env
+      - php artisan key:generate
+      - php artisan storage:link
+  artifacts:
+    expire_in: 1 month
+    paths:
+      - vendor/
+      - node_modules/
+      - .env
+      - public/css/
+      - public/js/
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-composer
+    paths:
+      - vendor/
+      - node_modules/
+  only:
+    refs:
+      - dev
+      
+build_image_dev:
+  stage: build_image_dev
+  variables: 
+    APP_HOSTNAME: $APP_HOSTNAME_PROD
+  extends: .build_and_push_docker_image
+  dependencies:
+    - build_app_dev
+  needs: ["build_app_dev"]
+  only:
+    refs:
+      - dev
+
+deploy_dev:
+  stage: deploy_dev
+  variables:
+    APP_HOSTNAME: $APP_HOSTNAME_PROD
+    REPLICAS: 1
+    GIT_STRATEGY: none
+  extends: .deploy_to_kubernetes
+  dependencies:
+    - build_image_dev
+  needs: ["build_image_dev"]
+  only:
+    refs:
+      - dev
+
+
+build_app_prod:
+  image: composer
+  stage: build_app_prod
+  variables: 
+    APP_HOSTNAME: $APP_HOSTNAME_PROD
+  script:
+      - apk add --update nodejs npm
+      - npm install
+      - npm run prod
+      #- composer update --with-all-dependencies
+      - composer update --ignore-platform-reqs
+      - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts --ignore-platform-reqs
+      - echo "DB_CONNECTION=myql" >> .env.example
+      - echo "DB_HOST=$DB_HOST_PROD" >> .env.example
+      - echo "DB_PORT=3306" >> .env.example
+      - echo "DB_DATABASE=$DB_NAME_PROD" >> .env.example
+      - echo "DB_USERNAME=$DB_USER_PROD" >> .env.example
+      - echo "DB_PASSWORD=$DB_PASS_PROD" >> .env.example
+      - echo "APP_DEBUG=false" >> .env.example
+      - cp .env.example .env
+      - php artisan key:generate
+      - php artisan storage:link
+  artifacts:
+    expire_in: 1 month
+    paths:
+      - vendor/
+      - node_modules/
+      - .env
+      - public/css/
+      - public/js/
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-composer
+    paths:
+      - vendor/
+      - node_modules/
+  only:
+    refs:
+      - prod
+      
+build_image_prod:
+  stage: build_image_prod
+  variables: 
+    APP_HOSTNAME: $APP_HOSTNAME_PROD
+  extends: .build_and_push_docker_image
+  dependencies:
+    - build_app_prod
+  needs: ["build_app_prod"]
+  only:
+    refs:
+      - prod
+
+deploy_prod:
+  stage: deploy_prod
+  variables:
+    REPLICAS: 1
+    APP_HOSTNAME: $APP_HOSTNAME_PROD
+    GIT_STRATEGY: none
+  extends: .deploy_to_kubernetes
+  dependencies:
+    - build_image_prod
+  needs: ["build_image_prod"]
+  only:
+    refs:
+      - prod
+
