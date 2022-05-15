@@ -74,5 +74,9 @@ class ButtonController extends Controller
         }else{
             return redirect(route('button.list'))->with('message', 'Error!');
         }
+
     }
+
+
+
 }
