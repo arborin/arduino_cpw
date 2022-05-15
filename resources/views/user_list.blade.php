@@ -91,46 +91,6 @@
 
 
 
-{{-- excel export modal --}}
 
-{{-- <div class="modal fade" id="excel_export_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-            <h6 class="" id="exampleModalLabel"><i class="fas fa-info-circle"></i> გთხოვთ მონიშნეთ პერიოდი</h6>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            </div>
-
-            <form method="post" action="{{ route('registration.export') }}" id="export_period">
-                @csrf
-                <div class="modal-body">
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <input type="text" name="date_from" class="form-control date" id="datepicker" required>
-                            </div>
-
-                            <div class="col-md-6">
-                                <input type="text" name="date_to" class="form-control date" id="datepicker" required>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">დახურვა</button>
-
-                    <button type="submit" form='export_period' class="btn btn-success btn-sm" id="export_registration">
-                        ექსპორტი <i class="fa fa-file-excel-o" aria-hidden="true"></i>
-                    </button>
-
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
---}}
 
 @endsection

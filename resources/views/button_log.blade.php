@@ -2,8 +2,44 @@
 
 
 @section('content')
+
+
+        <form action="{{ route("button_daily.data") }}" method="get" >
+            <div class="row mb-3">
+                <div class="col-md-3 input-group">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="inputGroupSelect01">
+                            <a href="{{ route('arduino.list') }}"><i class="fas fa-angle-double-left"></i></a>
+                        </label>
+                    </div>
+                    <div class="input-group-prepend">
+                        <input type="hidden" name="arduino_name" id="arduino_name" value="{{ $arduino_key_name }}" />
+                        <input type="text" name="show_date" required class="form-control date" value={{ today() }} id="show_date" placeholder="select date">
+                        <button type="button" class="btn btn-info input-group-append mr-3" id='update_graph'>Show</button>
+                    </div>
+                </div>
+
+                <div class="col-md-9">
+                    <button type="button" class="btn btn-success pull-right"  data-toggle="modal" data-target="#excel_export_modal">
+                        <i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel
+                    </button>
+                </div>
+
+            </div>
+        </form>
+
+
+        <div class="col-lg-12">
+            <div class="chart-container mb-5">
+                <canvas id="myChart" width="400" height="50"></canvas>
+            </div>
+
+            <hr class='mt-3'>
+        </div>
+
+
         <form action="" method="get" >
-            <div class="row mb-5">
+            <div class="row mt-5">
                 <div class="col-md-3 input-group">
                     <div class="input-group-prepend">
                         <label class="input-group-text" for="inputGroupSelect01">
@@ -13,7 +49,7 @@
                     <div class="input-group-prepend">
                         <label class="input-group-text bg-warning" for="inputGroupSelect01" >{{ $arduino_name }}</label>
                     </div>
-                    <select name='button_pin' class="custom-select" id="inputGroupSelect01">
+                    <select name='button_pin' class="custom-select" id="selected_arduino_btn">
                         <option value=''>-- ALL --</option>
                         <option value="btn_2" {{ ($btn == 'btn_2') ? 'selected' : '' }}>Button (PIN 2)</option>
                         <option value="btn_3" {{ ($btn == 'btn_3') ? 'selected' : '' }}>Button (PIN 3)</option>
@@ -40,24 +76,18 @@
 
 
 
-        <div class="row mb-5">
+        {{-- <div class="row mb-5">
             <div class="col-lg-12">
                 <div class="chart-container">
                     <canvas id="myChart" width="400" height="50"></canvas>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
 
 
 <div class="row mt-5">
     <div class="col-lg-12">
-
-
-        <canvas id="myChart" height='50'></canvas>
-
-
-
         <div class="card easion-card">
             <div class="card-header">
                 <div class="easion-card-icon">
@@ -108,6 +138,59 @@
 </div>
 
 
+
+
+
+
+
+
+
+
+
+
+{{-- excel export modal --}}
+
+<div class="modal fade" id="excel_export_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h6 class="" id="exampleModalLabel"><i class="fas fa-info-circle"></i> Select period</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+
+            <form method="post" action="{{ route('export_button.log') }}" id="export_period">
+                @csrf
+                <input type="hidden" name="arduino_name" id="arduino_name" value="{{ $arduino_key_name }}" />
+                <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="text" name="date_from" class="form-control date" id="datepicker" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <input type="text" name="date_to" class="form-control date" id="datepicker" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+
+                    <button type="submit" form='export_period' class="btn btn-success btn-sm" id="export_button_log">
+                        Export <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                    </button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
 @endsection
 
 
@@ -115,11 +198,12 @@
 @section('javascript')
 
 <script>
-    function newDate() {
-        return moment().add(days, 'd');
-    }
 
-        var config = {
+    $('#export_button_log').click(function(){
+        $('#excel_export_modal').modal('hide');
+    })
+
+    var config = {
         type: 'line',
 
         data: {
@@ -129,59 +213,47 @@
                 fill: true,
                 stepped: true,
                 label: "My First dataset",
+
                 // data: [1, 0, 1, 0, 1, 0, 1,0,1,0,1,0],
                 data: [
-                    { x: "2022-06-05T00:00:00", y: 0 },
-                    { x: "2022-06-05T00:01:00", y: 1 },
-                    { x: "2022-06-05T00:10:00", y: 0 },
-                    { x: "2022-06-05T01:00:00", y: 1 },
-                    { x: "2022-06-05T01:15:00", y: 0 },
-                    { x: "2022-06-05T05:15:00", y: 1 },
-                    { x: "2022-06-05T05:55:00", y: 0 },
-                    { x: "2022-06-05T12:15:00", y: 1 },
-                    { x: "2022-06-05T14:15:00", y: 0 },
-                    { x: "2022-06-05T18:15:00", y: 1 },
+                    // { x: "2022-05-10 10:08:27", y: 1 },
+                    // { x: "2022-05-10 10:09:27", y: 0 },
+                    // { x: "2022-05-10 19:06:27", y: 1 },
+                    // { x: "2022-05-10 23:08:27", y: 0 },
+                    // { x: "2022-05-10 23:18:27", y: 1 },
+                    // { x: "2022-05-10 23:55:27", y: 0 }
+
                 ]
             }],
 
         },
             options: {
+                plugins: {
+                    legend: {
+                    display: false,
+                    },
+                },
                 backgroundColor: '#ff8069',
                 scales: {
-                    // xAxis:[{
-                    //     type: 'time',
-
-                    // }],
-                    //         type: 'time',
-                    //         time: {
-                    //             format: "HH:mm",
-                    //             unit: 'hour',
-                    //             unitStepSize: 1,
-                    //             displayFormats: {
-                    //             'minute': 'HH:mm',
-                    //             'hour': 'HH:mm',
-                    //             min: '00:00',
-                    //             max: '23:59'
-                    //             },
-                    //         }
-                // }],
                 x: {
                         type: 'time',
                         time: {
                             unit: 'hour',
                             tooltipFormat: 'dd/MM/yyyy hh:mm:ss',
-                        }
+
+                        },
+
                     },
                 y: {
                     title: {
-                    display: true,
-                    text: 'Value'
+                        display: true,
+                        text: 'Value'
                     },
                     min: 0,
                     max: 2,
                     ticks: {
-                    // forces step size to be 50 units
-                    stepSize: 1
+                        // forces step size to be 50 units
+                        stepSize: 1
                     }
                 }
 
@@ -190,7 +262,62 @@
 };
 
 var ctx = document.getElementById("myChart").getContext("2d");
-new Chart(ctx, config);
+var chart = new Chart(ctx, config);
+
+
+
+    var arduino_name    = $("#arduino_name").val();
+    var arduino_btn     = $("#selected_arduino_btn").val()
+    let yourDate        = new Date()
+    let show_date       = yourDate.toISOString().split('T')[0]
+
+    if (arduino_btn != ''){
+        getButtonData(arduino_name, show_date, arduino_btn);
+    }
+
+    $("#update_graph").click(function(){
+        var arduino_name    = $("#arduino_name").val();
+        var show_date       = $("#show_date").val();
+        var arduino_btn     = $("#selected_arduino_btn").val()
+
+
+
+        getButtonData(arduino_name, show_date, arduino_btn);
+
+    });
+
+    function getButtonData(arduino_name, show_date, arduino_btn){
+        var ajaxurl     = "/button-data?arduino_name=" + arduino_name + "&show_date=" + show_date + "&btn="+arduino_btn;
+        var type        = 'GET';
+
+        $.ajax({
+            type: type,
+            url: ajaxurl,
+            dataType: 'json',
+            success: function (data) {
+
+                result = Array();
+
+                data.forEach(element => {
+                    var d = {};
+                    d['x'] = element['created_at'];
+                    d['y'] = element['status_value'];
+                    result.push(d);
+                });
+
+                console.log(result);
+
+
+
+                config.data.datasets[0].data = result;
+                chart.update();
+            },
+            error: function (data) {
+                console.log(data);
+            }
+        });
+    }
+
 
 </script>
 

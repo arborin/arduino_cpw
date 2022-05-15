@@ -12,9 +12,7 @@
                 </a>
             @endif
 
-            {{-- <button type="button" class="btn btn-success pull-right"  data-toggle="modal" data-target="#excel_export_modal">
-                <i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel
-            </button> --}}
+
 
             <button type="submit" class="btn btn-outline-primary pull-right">
                 <i class="fa fa-search" aria-hidden="true"></i> Search
