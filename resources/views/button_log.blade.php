@@ -154,7 +154,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-            <h6 class="" id="exampleModalLabel"><i class="fas fa-info-circle"></i> Select period</h6>
+            <h6 class="" id="exampleModalLabel"><i class="fas fa-info-circle"></i> Export data log</h6>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -165,6 +165,19 @@
                 <input type="hidden" name="arduino_name" id="arduino_name" value="{{ $arduino_key_name }}" />
                 <div class="modal-body">
                         <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="button_pin">Button Pin Number</label>
+                                    <select class="form-control" name='button_pin' aria-label="Default select example">
+                                        <option value=''>-- ALL --</option>
+                                        <option value="btn_2">Button (PIN 2)</option>
+                                        <option value="btn_3">Button (PIN 3)</option>
+                                        <option value="btn_5">Button (PIN 5)</option>
+                                        <option value="btn_6">Button (PIN 6)</option>
+                                        <option value="btn_7">Button (PIN 7)</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <input type="text" name="date_from" class="form-control date" id="datepicker" required>
                             </div>

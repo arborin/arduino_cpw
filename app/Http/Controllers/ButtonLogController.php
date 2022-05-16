@@ -78,11 +78,12 @@ class ButtonLogController extends Controller
         $date_from      = $request->date_from;
         $date_to        = $request->date_to;
         $arduino_name   = $request->arduino_name;
+        $button_pin     = $request->button_pin;
 
 
         $now            = date('Y_m_d_His');
         $filename       = "btn_log_".$now.".xlsx";
 
-        return Excel::download(new ExportButtonLogs($arduino_name, $date_from, $date_to),  $filename);
+        return Excel::download(new ExportButtonLogs($arduino_name, $date_from, $date_to, $button_pin),  $filename);
     }
 }
