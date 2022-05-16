@@ -6,7 +6,7 @@
 
 <form action="{{ route("button_daily.data") }}" method="get" >
     <div class="row mb-3">
-        <div class="col-md-3 input-group">
+        <div class="col-md-6 input-group">
             <div class="input-group-prepend">
                 <label class="input-group-text" for="inputGroupSelect01">
                     <a href="{{ route('arduino.list') }}"><i class="fas fa-angle-double-left"></i></a>
@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        <div class="col-md-9">
+        <div class="col-md-6">
             <button type="button" class="btn btn-success pull-right"  data-toggle="modal" data-target="#excel_export_modal">
                 <i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel
             </button>
