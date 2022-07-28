@@ -27,8 +27,10 @@
                                 <label for="button_pin">Button Pin Number</label>
                                 <select class="form-control" name='button_pin' aria-label="Default select example">
                                     <option>-- select pin --</option>
+                                    <!-- this may be in loop -->
                                     <option value="btn_2" {{ ($button->button_pin == 'btn_2') ? 'selected' : '' }}>Button (PIN 2)</option>
                                     <option value="btn_3" {{ ($button->button_pin == 'btn_3') ? 'selected' : '' }}>Button (PIN 3)</option>
+                                    <option value="btn_4" {{ ($button->button_pin == 'btn_4') ? 'selected' : '' }}>Button (PIN 4)</option>
                                     <option value="btn_5" {{ ($button->button_pin == 'btn_5') ? 'selected' : '' }}>Button (PIN 5)</option>
                                     <option value="btn_6" {{ ($button->button_pin == 'btn_6') ? 'selected' : '' }}>Button (PIN 6)</option>
                                     <option value="btn_7" {{ ($button->button_pin == 'btn_7') ? 'selected' : '' }}>Button (PIN 7)</option>

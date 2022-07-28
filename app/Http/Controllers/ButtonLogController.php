@@ -14,9 +14,9 @@ class ButtonLogController extends Controller
 {
     public function showButtonLog($arduino_name, Request $request){
 
-        $button_pin         = $request->button_pin ?? '';
-        $date_from          = $request->date_from ?? '';
-        $date_to            = $request->date_to ?? '';
+        $button_pin         = $request->button_pin  ?? '';
+        $date_from          = $request->date_from   ?? '';
+        $date_to            = $request->date_to     ?? '';
 
         $search                     = [];
 

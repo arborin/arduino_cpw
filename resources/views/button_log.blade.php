@@ -170,8 +170,7 @@
                                     <label for="button_pin">Button Pin Number</label>
                                     <select class="form-control" name='button_pin' aria-label="Default select example">
                                         <option value=''>-- ALL --</option>
-                                        <option value="btn_2">Button (PIN 2)</option>
-                                        <option value="btn_3">Button (PIN 3)</option>
+                                        <option value="btn_4">Button (PIN 4)</option>
                                         <option value="btn_5">Button (PIN 5)</option>
                                         <option value="btn_6">Button (PIN 6)</option>
                                         <option value="btn_7">Button (PIN 7)</option>
